@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -25,11 +26,8 @@ func main() {
 	totalRibbon := 0
 	for err == nil && !isPrefix {
 		dimensions := getDimensions(string(line))
-		area := calculateWrappingArea(dimensions)
-		length := calculateRibbonLength(dimensions)
-		totalWrapping += area
-		totalRibbon += length
-		fmt.Printf("%s\n%d\n", line, length)
+		totalWrapping += calculateWrappingArea(dimensions)
+		totalRibbon += calculateRibbonLength(dimensions)
 		line, isPrefix, err = reader.ReadLine()
 	}
 
@@ -49,18 +47,16 @@ func main() {
 /// input - dimensions in the format LxWxH
 /// return an array of integers containing L, W, H
 func getDimensions(lxwxh string) []int {
-	tokens := strings.Split(lxwxh, "x")
-	if len(tokens) != 3 {
-		log.Fatal("Invalid dimensions for ", lxwxh)
-	}
-
-	dimensions := make([]int, 3)
-	for idx, token := range tokens {
-		i, err := strconv.Atoi(token)
+	dimensions := make([]int, 0, 3)
+	for _, strDim := range strings.Split(lxwxh, "x") {
+		intDim, err := strconv.Atoi(strDim)
 		if err != nil {
 			log.Fatal(err)
 		}
-		dimensions[idx] = i
+		dimensions = append(dimensions, intDim)
+	}
+	if len(dimensions) != 3 {
+		log.Fatal("Invalid dimensions for ", lxwxh)
 	}
 	return dimensions
 }
@@ -68,36 +64,17 @@ func getDimensions(lxwxh string) []int {
 /// dimensions - array of integers containing L, W, H
 /// return area needed for wrapping
 func calculateWrappingArea(dimensions []int) int {
-	val1 := dimensions[0] * dimensions[1]
+	sort.Ints(dimensions)
+	val1 := dimensions[0] * dimensions[1] // this is the minimum
 	val2 := dimensions[0] * dimensions[2]
 	val3 := dimensions[1] * dimensions[2]
-
-	min := val1
-	if val2 < min {
-		min = val2
-	}
-	if val3 < min {
-		min = val3
-	}
-
-	return 2*val1 + 2*val2 + 2*val3 + min
+	return 3*val1 + 2*val2 + 2*val3
 }
 
 /// dimensions - array of integers containing L, W, H
 /// return length of ribbons
 func calculateRibbonLength(dimensions []int) int {
+	sort.Ints(dimensions)
 	length := dimensions[0] * dimensions[1] * dimensions[2]
-	val1 := dimensions[0] + dimensions[1]
-	val2 := dimensions[0] + dimensions[2]
-	val3 := dimensions[1] + dimensions[2]
-
-	min := val1
-	if val2 < min {
-		min = val2
-	}
-	if val3 < min {
-		min = val3
-	}
-
-	return length + 2*min
+	return length + 2*(dimensions[0]+dimensions[1])
 }
