@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-type grid [1000][1000]bool
+type grid [1000][1000]int
 
 var lights grid
 var testLights grid
@@ -41,7 +41,7 @@ func newBox(values []string) *box {
 func (g *grid) turnOn(b box) {
 	for x := b.x1; x <= b.x2; x++ {
 		for y := b.y1; y <= b.y2; y++ {
-			g[x][y] = true
+			g[x][y]++
 		}
 	}
 }
@@ -49,7 +49,10 @@ func (g *grid) turnOn(b box) {
 func (g *grid) turnOff(b box) {
 	for x := b.x1; x <= b.x2; x++ {
 		for y := b.y1; y <= b.y2; y++ {
-			g[x][y] = false
+			g[x][y]--
+			if g[x][y] < 0 {
+				g[x][y] = 0
+			}
 		}
 	}
 }
@@ -57,7 +60,7 @@ func (g *grid) turnOff(b box) {
 func (g *grid) toggle(b box) {
 	for x := b.x1; x <= b.x2; x++ {
 		for y := b.y1; y <= b.y2; y++ {
-			g[x][y] = !g[x][y]
+			g[x][y] += 2
 		}
 	}
 }
@@ -66,16 +69,18 @@ func (g *grid) countOn() int {
 	totalOn := 0
 	for _, row := range g {
 		for _, col := range row {
-			if col {
-				//fmt.Printf("%d ", 1)
-				totalOn++
-			} else {
-				//fmt.Printf("%d ", 0)
-			}
+			totalOn += col
 		}
-		//fmt.Printf("\n")
 	}
 	return totalOn
+}
+
+func (g *grid) reset() {
+	for i, row := range g {
+		for j, _ := range row {
+			g[i][j] = 0
+		}
+	}
 }
 
 func assert(expected int, result int) {
@@ -88,10 +93,11 @@ func assert(expected int, result int) {
 
 func main() {
 
-	testLights.turnOn(box{4, 4, 5, 5})
-	assert(4, testLights.countOn())
-	testLights.toggle(box{4, 4, 4, 5})
-	assert(2, testLights.countOn())
+	testLights.turnOn(box{0, 0, 0, 0})
+	assert(1, testLights.countOn())
+	testLights.reset()
+	testLights.toggle(box{0, 0, 999, 999})
+	assert(2000000, testLights.countOn())
 
 	input, err := ioutil.ReadFile("day6.input")
 	if err != nil {
