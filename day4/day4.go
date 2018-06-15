@@ -14,7 +14,6 @@ func md5hash(input string) string {
 
 func test(input string, expected bool) {
 	hash := md5hash(input)
-	//fmt.Println(hash)
 	result := hash[0:5] == "00000"
 	if result == expected {
 		fmt.Println("Success")
@@ -23,17 +22,23 @@ func test(input string, expected bool) {
 	}
 }
 
+func find(input string, pattern string) int {
+	for i := 0; i < 100000000; i++ {
+		hash := md5hash(input + strconv.Itoa(i))
+		if hash[:len(pattern)] == pattern {
+			//fmt.Println(i)
+			return i
+		}
+	}
+	return -1
+}
+
 func main() {
 	test("abcdef609043", true)
 	test("pqrstuv1048970", true)
 	test("12345", false)
 
 	input := "iwrupvqb"
-	for i := 0; i < 10000000000; i++ {
-		hash := md5hash(input + strconv.Itoa(i))
-		if hash[0:5] == "00000" {
-			fmt.Println(i)
-			return
-		}
-	}
+	fmt.Println("Part1: ", find(input, "00000"))
+	fmt.Println("Part2: ", find(input, "000000"))
 }
