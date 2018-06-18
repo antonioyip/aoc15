@@ -16,6 +16,10 @@ type gate struct {
 	valueB   string
 }
 
+func (g *gate) reset() {
+	g.memoized = false
+}
+
 func (g *gate) getValue() uint16 {
 	if g.memoized {
 		return g.value
@@ -123,6 +127,15 @@ func main() {
 		if !(binaryOperator(instruction) || unaryOperator(instruction) || assignmentOperator(instruction)) {
 			log.Fatal("Unexpected instruction: ", instruction)
 		}
+	}
+
+	fmt.Println(circuit["a"].getValue())
+
+	circuit["b"].operator = "ASSIGN"
+	circuit["b"].valueA = strconv.Itoa(int(circuit["a"].getValue()))
+
+	for _, g := range circuit {
+		g.reset()
 	}
 
 	fmt.Println(circuit["a"].getValue())
