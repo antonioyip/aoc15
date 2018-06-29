@@ -59,28 +59,49 @@ func main() {
 		distanceGraph.add(source, destination, distance)
 	}
 
+	minDistance := 999999
+	maxDistance := 0
 	allPermutations := permutation(len(allCities), allCities)
 	for _, aPermutation := range allPermutations {
-		fmt.Println(aPermutation)
+		currentDistance := calcDistance(aPermutation, distanceGraph)
+		fmt.Println(aPermutation, currentDistance)
+		if minDistance > currentDistance {
+			minDistance = currentDistance
+		}
+		if maxDistance < currentDistance {
+			maxDistance = currentDistance
+		}
 	}
+	fmt.Println("Minimum distance: ", minDistance)
+	fmt.Println("Maximum distance: ", maxDistance)
 }
 
 // Heap's algorithm
 func permutation(length int, values []string) [][]string {
 	result := [][]string{}
 	if length == 1 {
-		//result = append(result, values)
-		fmt.Println(values)
+		// force a deep copy
+		temp := make([]string, len(values))
+		copy(temp, values)
+		result = append(result, temp)
 	} else {
 		for i := 0; i < length-1; i++ {
-			result = permutation(length-1, values)
+			result = append(result, permutation(length-1, values)...)
 			if length%2 == 0 {
 				values[i], values[length-1] = values[length-1], values[i]
 			} else {
 				values[0], values[length-1] = values[length-1], values[0]
 			}
 		}
-		result = permutation(length-1, values)
+		result = append(result, permutation(length-1, values)...)
 	}
 	return result
+}
+
+func calcDistance(path []string, distances graph) int {
+	totalDistance := 0
+	for i := 1; i < len(path); i++ {
+		totalDistance += distances[path[i-1]][path[i]]
+	}
+	return totalDistance
 }
