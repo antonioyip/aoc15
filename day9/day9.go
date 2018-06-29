@@ -8,6 +8,8 @@ import (
 
 type graph map[string]map[string]int
 
+type stringList []string
+
 func (g graph) add(key1 string, key2 string, value int) {
 	if _, ok := g[key1]; !ok {
 		g[key1] = make(map[string]int)
@@ -19,17 +21,27 @@ func (g graph) add(key1 string, key2 string, value int) {
 	g[key2][key1] = value
 }
 
+func (array stringList) contains(value string) bool {
+	for _, entry := range array {
+		if entry == value {
+			return true
+		}
+	}
+	return false
+}
+
 func main() {
 	inputs, err := ioutil.ReadFile("day9.input")
 	if err != nil {
 		panic(err)
 	}
 
-	citiesVisited := make(map[string]bool)
+	allCities := stringList{}
 	distanceGraph := graph{}
 
 	// parse the file
 	// create the graph
+	// create list of cities
 	lines := strings.Split(string(inputs), "\n")
 	for _, line := range lines {
 		var source string
@@ -37,48 +49,38 @@ func main() {
 		var distance int
 		fmt.Sscanf(line, "%s to %s = %d", &source, &destination, &distance)
 
-		citiesVisited[source] = false
-		citiesVisited[destination] = false
+		if !allCities.contains(source) {
+			allCities = append(allCities, source)
+		}
+		if !allCities.contains(destination) {
+			allCities = append(allCities, destination)
+		}
 
 		distanceGraph.add(source, destination, distance)
 	}
 
-	// print out city list
-	for city, visited := range citiesVisited {
-		fmt.Printf("%s %t\n", city, visited)
+	allPermutations := permutation(len(allCities), allCities)
+	for _, aPermutation := range allPermutations {
+		fmt.Println(aPermutation)
 	}
-
-	// print out the graph entries
-	for city1, row := range distanceGraph {
-		for city2, distance := range row {
-			fmt.Printf("%d: %s -> %s\n", distance, city1, city2)
-		}
-	}
-
-	totalDistance := 0
-	for city := range citiesVisited {
-		citiesVisited[city] = true
-		thisDistance := tsp(distanceGraph, city, citiesVisited)
-		if totalDistance < thisDistance {
-			totalDistance = thisDistance
-		}
-		citiesVisited[city] = false
-	}
-
-	fmt.Printf("Total distance %d\n", totalDistance)
 }
 
-func tsp(distanceGraph graph, currentCity string, visitedCities map[string]bool) int {
-	totalDistance := 0
-	for city, visited := range visitedCities {
-		if !visited {
-			visitedCities[city] = true
-			currentDistance := tsp(distanceGraph, city, visitedCities) + distanceGraph[currentCity][city]
-			if totalDistance < currentDistance {
-				totalDistance = currentDistance
+// Heap's algorithm
+func permutation(length int, values []string) [][]string {
+	result := [][]string{}
+	if length == 1 {
+		//result = append(result, values)
+		fmt.Println(values)
+	} else {
+		for i := 0; i < length-1; i++ {
+			result = permutation(length-1, values)
+			if length%2 == 0 {
+				values[i], values[length-1] = values[length-1], values[i]
+			} else {
+				values[0], values[length-1] = values[length-1], values[0]
 			}
-			visitedCities[city] = false
 		}
+		result = permutation(length-1, values)
 	}
-	return totalDistance
+	return result
 }
