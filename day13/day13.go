@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"aoc15/graph"
+	"aoc15/permutations"
+	"aoc15/stringList"
 )
 
 func main() {
@@ -13,10 +15,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	lines := strings.Split(string(inputs), "\n")
+
+	happinessGraph := graph.Graph{}
+	people := stringList.StringList{}
 
 	// generate happinessGraph
-	happinessGraph := graph.Graph{}
-	lines := strings.Split(string(inputs), "\n")
 	for _, line := range lines {
 		var personA string
 		var personB string
@@ -29,12 +33,35 @@ func main() {
 		if gainLose == "lose" {
 			happiness *= -1
 		}
+
+		people.AddUnique(personA)
+		people.AddUnique(personB)
 		happinessGraph.Add(personA, personB, happiness)
 	}
 
-	for personA, row := range happinessGraph {
-		for personB, happiness := range row {
-			fmt.Printf("%s : %s (%d)\n", personA, personB, happiness)
-		}
+	maxHappiness := 0
+	seatArrangements := permutations.GeneratePermutations(people)
+	for _, arrangement := range seatArrangements {
+		maxHappiness = max(maxHappiness, calcHappiness(arrangement, happinessGraph))
 	}
+
+	fmt.Println(maxHappiness)
+}
+
+func calcHappiness(people []string, happiness graph.Graph) int {
+	sum := 0
+	for i := 1; i < len(people); i++ {
+		sum += happiness[people[i-1]][people[i]]
+		sum += happiness[people[i]][people[i-1]]
+	}
+	sum += happiness[people[0]][people[len(people)-1]]
+	sum += happiness[people[len(people)-1]][people[0]]
+	return sum
+}
+
+func max(a int, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
