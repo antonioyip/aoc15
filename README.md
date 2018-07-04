@@ -1,4 +1,6 @@
-# Overview
+# Advent of Code
+
+## Overview
 I decided to explore the [Go Language](https://golang.org/) by solving problems from [Advent of Code](http://adventofcode.com/). This repository contains my solutions for [AoC 2015](http://adventofcode.com/2015).
 
 ## Getting started
