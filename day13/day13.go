@@ -39,13 +39,24 @@ func main() {
 		happinessGraph.Add(personA, personB, happiness)
 	}
 
+	fmt.Println(maxHappiness(people, happinessGraph))
+
+	for _, person := range people {
+		happinessGraph.Add("Apathy", person, 0)
+		happinessGraph.Add(person, "Apathy", 0)
+	}
+	people.AddUnique("Apathy")
+
+	fmt.Println(maxHappiness(people, happinessGraph))
+}
+
+func maxHappiness(people []string, happiness graph.Graph) int {
 	maxHappiness := 0
 	seatArrangements := permutations.GeneratePermutations(people)
 	for _, arrangement := range seatArrangements {
-		maxHappiness = max(maxHappiness, calcHappiness(arrangement, happinessGraph))
+		maxHappiness = max(maxHappiness, calcHappiness(arrangement, happiness))
 	}
-
-	fmt.Println(maxHappiness)
+	return maxHappiness
 }
 
 func calcHappiness(people []string, happiness graph.Graph) int {
