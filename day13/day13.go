@@ -4,20 +4,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strings"
+
+	"aoc15/graph"
 )
-
-type graph map[string]map[string]int
-
-func (g graph) add(key1 string, key2 string, value int) {
-	if _, ok := g[key1]; !ok {
-		g[key1] = make(map[string]int)
-	}
-	if _, ok := g[key2]; !ok {
-		g[key2] = make(map[string]int)
-	}
-	g[key1][key2] = value
-	g[key2][key1] = value
-}
 
 func main() {
 	inputs, err := ioutil.ReadFile("day13.input")
@@ -26,7 +15,7 @@ func main() {
 	}
 
 	// generate happinessGraph
-	happinessGraph := graph{}
+	happinessGraph := graph.Graph{}
 	lines := strings.Split(string(inputs), "\n")
 	for _, line := range lines {
 		var personA string
@@ -40,7 +29,7 @@ func main() {
 		if gainLose == "lose" {
 			happiness *= -1
 		}
-		happinessGraph.add(personA, personB, happiness)
+		happinessGraph.Add(personA, personB, happiness)
 	}
 
 	for personA, row := range happinessGraph {
