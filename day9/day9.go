@@ -7,18 +7,8 @@ import (
 
 	"aoc15/graph"
 	"aoc15/permutations"
+	"aoc15/stringList"
 )
-
-type stringList []string
-
-func (array stringList) contains(value string) bool {
-	for _, entry := range array {
-		if entry == value {
-			return true
-		}
-	}
-	return false
-}
 
 func main() {
 	inputs, err := ioutil.ReadFile("day9.input")
@@ -26,7 +16,7 @@ func main() {
 		panic(err)
 	}
 
-	allCities := stringList{}
+	allCities := stringList.StringList{}
 	distanceGraph := graph.Graph{}
 
 	// parse the file
@@ -39,12 +29,8 @@ func main() {
 		var distance int
 		fmt.Sscanf(line, "%s to %s = %d", &source, &destination, &distance)
 
-		if !allCities.contains(source) {
-			allCities = append(allCities, source)
-		}
-		if !allCities.contains(destination) {
-			allCities = append(allCities, destination)
-		}
+		allCities.AddUnique(source)
+		allCities.AddUnique(destination)
 
 		distanceGraph.Add(source, destination, distance)
 	}
