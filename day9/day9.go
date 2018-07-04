@@ -33,6 +33,7 @@ func main() {
 		allCities.AddUnique(destination)
 
 		distanceGraph.Add(source, destination, distance)
+		distanceGraph.Add(destination, source, distance)
 	}
 
 	minDistance := 999999

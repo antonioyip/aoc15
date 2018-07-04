@@ -10,5 +10,4 @@ func (g Graph) Add(key1 string, key2 string, value int) {
 		g[key2] = make(map[string]int)
 	}
 	g[key1][key2] = value
-	g[key2][key1] = value
 }
