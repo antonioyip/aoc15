@@ -7,6 +7,7 @@ I decided to explore the [Go Language](https://golang.org/) by solving problems 
 - Checkout this repo to $GOPATH/src
 - go install aoc15/graph
 - go install aoc15/permutations
+- go install aoc15/stringList
 
 ## Running a solution
 - cd dayX
