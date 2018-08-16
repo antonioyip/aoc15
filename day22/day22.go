@@ -15,6 +15,7 @@ type State struct {
 	rechargeDuration int
 	manaUsed         int
 	minMana          int
+	hardMode         bool
 }
 
 type Spell struct {
@@ -85,6 +86,12 @@ func ApplyEffects(state *State) {
 	}
 }
 
+func HardMode(state *State) {
+	if state.hardMode {
+		state.heroHealth--
+	}
+}
+
 func BossAttack(state *State) {
 	damage := state.bossDamage - state.heroArmor
 	if damage < 1 {
@@ -102,18 +109,26 @@ var spells = []Spell{
 }
 
 func main() {
-	state := State{50, 500, 0, 55, 8, 0, 0, 0, 0, 999999}
+	test()
+	state := State{50, 500, 0, 55, 8, 0, 0, 0, 0, 999999, false}
 	fmt.Println(battle(state))
+	state.hardMode = true
+	fmt.Println(battle(state))
+}
+
+func test() {
+	state := State{10, 250, 0, 13, 8, 0, 0, 0, 0, 999999, false}
+	fmt.Println(battle(state) == 226)
+	state.bossHealth = 14
+	fmt.Println(battle(state) == 641)
 }
 
 func battle(state State) int {
 	for _, spell := range spells {
-		if spell.Available(state) {
-			success, manaUsed := heroTurn(spell, state)
-			if success {
-				if state.minMana > manaUsed {
-					state.minMana = manaUsed
-				}
+		success, manaUsed := heroTurn(spell, state)
+		if success {
+			if state.minMana > manaUsed {
+				state.minMana = manaUsed
 			}
 		}
 	}
@@ -121,12 +136,16 @@ func battle(state State) int {
 }
 
 func heroTurn(spell Spell, state State) (bool, int) {
+	HardMode(&state)
 	if state.IsDefeat() {
 		return false, 0
 	}
 	ApplyEffects(&state)
 	if state.IsVictory() {
 		return true, state.manaUsed
+	}
+	if !spell.Available(state) {
+		return false, 0
 	}
 	spell.Cast(&state)
 	if state.manaUsed > state.minMana {
@@ -152,13 +171,11 @@ func bossTurn(state State) (bool, int) {
 
 	victory := false
 	for _, spell := range spells {
-		if spell.Available(state) {
-			success, manaUsed := heroTurn(spell, state)
-			if success {
-				victory = true
-				if state.minMana > manaUsed {
-					state.minMana = manaUsed
-				}
+		success, manaUsed := heroTurn(spell, state)
+		if success {
+			victory = true
+			if state.minMana > manaUsed {
+				state.minMana = manaUsed
 			}
 		}
 	}
